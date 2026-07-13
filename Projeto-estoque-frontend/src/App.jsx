@@ -1,28 +1,126 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Layout from "./components/Layout";
-import Login from "./pages/Login";
-import Products from "./pages/Products";
-import ProductForm from "./pages/ProductForm";
-import Metrics from "./pages/Metrics";
-import Logs from "./pages/Logs";
+import React, { useState, useEffect } from "react";
+import api from "./api";
+import Login from "./components/Login.jsx";
+import Metrics from "./components/metrics";
+import Products from "./components/products";
+import Categories from "./components/categories";
+import StockMovement from "./components/stockmovement";
+import Logs from "./components/logs";
 
 export default function App() {
-    return (
-    <BrowserRouter>
-    <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-        <Route path="/" element={<Navigate to="/products" replace />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/new" element={<ProductForm />} />
-        <Route path="/products/:id/edit" element={<ProductForm />} />
-        <Route path="/metrics" element={<Metrics />} />
-        <Route path="/logs" element={<Logs />} />
-        </Route>
-        </Route>
-    </Routes>
-    </BrowserRouter>
-    );
-};
+  const [logado, setLogado] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("metrics");
+
+  const [categories, setCategories] = useState([]);
+
+  const [products, setProducts] = useState([]);
+
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+  carregarDados();
+}, []);
+
+async function carregarDados() {
+  try {
+    const categorias = await api.get("/categories");
+    const produtos = await api.get("/products");
+
+    setCategories(categorias.data);
+    setProducts(produtos.data);
+
+  } catch (error) {
+    console.log("Erro ao buscar dados:", error);
+  }
+}
+
+  const addLog = (action, entity, entityId) => {
+    setLogs((prev) => [
+      {
+        id: Date.now(),
+        action,
+        entity,
+        entity_id: entityId,
+        user_id: 1,
+        created_at: new Date().toLocaleString(),
+      },
+      ...prev,
+    ]);
+  };
+
+  if (!logado) {
+    return <Login onLogin={() => setLogado(true)} />;
+  }
+
+  return (
+    <div className="app-container">
+      <div className="sidebar">
+        <div className="sidebar-title">StockManager</div>
+
+        <nav className="sidebar-nav">
+          {[
+            { id: "metrics", label: "Dashboard" },
+            { id: "products", label: "Produtos" },
+            { id: "categories", label: "Categorias" },
+            { id: "movements", label: "Movimentar Estoque" },
+            { id: "logs", label: "Logs do Sistema" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`nav-button ${
+                activeTab === tab.id ? "active" : ""
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <div className="main-content">
+        <header className="header">
+          <h2 className="header-title">
+            {activeTab === "metrics" ? "Painel Geral" : activeTab}
+          </h2>
+
+          <div className="user-info">
+            Usuário: <strong>Admin</strong>
+          </div>
+        </header>
+
+        <main className="content-body">
+          {activeTab === "metrics" && <Metrics products={products} />}
+
+          {activeTab === "products" && (
+            <Products
+              products={products}
+              setProducts={setProducts}
+              categories={categories}
+              addLog={addLog}
+            />
+          )}
+
+          {activeTab === "categories" && (
+            <Categories
+              categories={categories}
+              setCategories={setCategories}
+              addLog={addLog}
+            />
+          )}
+
+          {activeTab === "movements" && (
+            <StockMovement
+              products={products}
+              setProducts={setProducts}
+              addLog={addLog}
+            />
+          )}
+
+          {activeTab === "logs" && <Logs logs={logs} />}
+        </main>
+      </div>
+    </div>
+  );
+}
