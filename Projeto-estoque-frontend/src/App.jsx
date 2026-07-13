@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from "./api";
+import api from "./services/api"
 import Login from "./components/Login.jsx";
 import Metrics from "./components/metrics";
 import Products from "./components/products";
@@ -49,9 +49,15 @@ async function carregarDados() {
     ]);
   };
 
-  if (!logado) {
-    return <Login onLogin={() => setLogado(true)} />;
-  }
+  const handleLogin = async () => {
+    const res = await api.post("/login", {
+      email,
+      passwd,
+    });
+
+    localStorage.setItem("token", res.data.token);
+   };
+   
 
   return (
     <div className="app-container">

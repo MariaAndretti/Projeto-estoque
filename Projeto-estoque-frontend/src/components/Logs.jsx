@@ -54,7 +54,6 @@ export default function Logs({ logs }) {
         </tbody>
       </table>
 
-      {/* Paginação */}
       <div className="pagination">
         <div>
           Mostrando <strong>{totalItems > 0 ? indexOfFirstItem + 1 : 0}</strong> até{' '}

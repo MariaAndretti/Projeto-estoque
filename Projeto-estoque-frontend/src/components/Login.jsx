@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function Login({ onLogin }) {
+export default function Login({ Login }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
@@ -11,9 +11,7 @@ export default function Login({ onLogin }) {
       alert("Preencha todos os campos.");
       return;
     }
-
-    onLogin();
-  }
+}
 
   return (
     <div className="login-container">

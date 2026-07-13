@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import api from "../services/api";
 
 export default function Metrics() {
     const [metrics, setMetrics] = useState(null);
@@ -13,7 +13,7 @@ export default function Metrics() {
     return (
     <div style={{ display: "flex", gap: 12 }}>
         <div>Total produtos: {metrics.total_products}</div>
-        <div>Estoque crítico: {metrics.critical_stock}</div>
+        <div>Estoque baixo: {metrics.critical_stock}</div>
         <div>Valor total: {metrics.total_value}</div>
     </div>
     );

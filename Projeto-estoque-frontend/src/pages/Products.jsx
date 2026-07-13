@@ -8,7 +8,6 @@ function Produto() {
     const [preco, setPreco] = useState("");
     const [quantidade, setQuantidade] = useState("");
     
-    // Busca todos os produtos
     async function carregarProdutos() {
         
         const response = await api.get("/produto");
@@ -16,7 +15,6 @@ function Produto() {
         
     }
 
-    // Cadastra produto
     async function cadastrarProduto() {
         
         await api.post("/produto", {
@@ -30,7 +28,6 @@ function Produto() {
 
     }
 
-    // Excluir produto
     async function excluirProduto(id) {
 
         await api.delete(`/produto/${id}`);
